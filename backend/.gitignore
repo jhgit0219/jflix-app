@@ -1,0 +1,5 @@
+.env
+firebase-service-account.json
+jhgit-firebase.json
+node_modules
+dist/
