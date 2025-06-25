@@ -1,0 +1,36 @@
+<nav
+  class="w-full bg-background text-foreground px-6 py-4 flex items-center justify-between"
+>
+  <div class="flex items-center gap-30">
+    <div class="text-heading">
+      <a routerLink="/">JFlix</a>
+    </div>
+
+    <div class="hidden md:flex gap-12">
+      <a routerLink="#" class="nav-link">What's New</a>
+      <a routerLink="#" class="nav-link">Movies</a>
+      <a routerLink="#" class="nav-link">Series</a>
+      <a routerLink="#" class="nav-link">Kids</a>
+      <a routerLink="#" class="nav-link">My List</a>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-3">
+    <input
+      type="text"
+      placeholder="Search"
+      class="bg-surface text-sm text-foreground rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-brand-red"
+    />
+
+    <lucide-angular name="Bell" class="w-5 h-5 cursor-pointer"></lucide-angular>
+
+    <ng-container *ngIf="user; else guestLinks">
+      <a routerLink="/account" class="nav-link">Account</a>
+    </ng-container>
+
+    <ng-template #guestLinks>
+      <a routerLink="/login" class="nav-button nav-login">Login</a>
+      <a routerLink="/signup" class="nav-button nav-signup">Sign Up</a>
+    </ng-template>
+  </div>
+</nav>
