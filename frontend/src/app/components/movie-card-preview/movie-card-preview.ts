@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -19,4 +19,17 @@ export class MovieCardPreview {
   };
 
   @Input() previewStyle!: Partial<CSSStyleDeclaration>;
+  @Input() width?: string;
+  @Input() visible: boolean = false;
+
+  @Output() hoverEnter = new EventEmitter<void>();
+  @Output() hoverLeave = new EventEmitter<void>();
+
+  onHoverEnterInternal() {
+    this.hoverEnter.emit();
+  }
+
+  onHoverLeave() {
+    this.hoverLeave.emit();
+  }
 }

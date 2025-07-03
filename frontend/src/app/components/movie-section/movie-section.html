@@ -80,15 +80,18 @@
         *ngFor="let movie of placeholderMovies"
         [title]="movie.title"
         [image]="movie.image"
-        (mouseenter)="showPreview($event, movie)"
-        (mouseleave)="hidePreview()"
+        (mouseenter)="onHoverEnter(); showPreview($event, movie)"
+        (mouseleave)="onHoverLeave()"
       />
     </div>
   </div>
 </section>
-
 <app-movie-card-preview
   *ngIf="previewMovie() && previewStyle()"
   [movie]="previewMovie()!"
   [style]="previewStyle()!"
+  [width]="previewStyle()?.width"
+  [visible]="previewVisible()"
+  (hoverEnter)="onHoverEnter()"
+  (hoverLeave)="onHoverLeave()"
 />

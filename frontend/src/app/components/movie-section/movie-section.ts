@@ -40,9 +40,34 @@ export class MovieSection implements AfterViewInit {
 
   previewMovie = signal<Movie | null>(null);
   previewStyle = signal<Partial<CSSStyleDeclaration> | null>(null);
+  previewVisible = signal(false);
 
   arrowHoverLeft = false;
   arrowHoverRight = false;
+
+  hoverCount = 0;
+  previewHideTimeout: any = null;
+
+  onHoverEnter() {
+    this.hoverCount++;
+    // Cancel any pending hide
+    if (this.previewHideTimeout) {
+      clearTimeout(this.previewHideTimeout);
+      this.previewHideTimeout = null;
+    }
+  }
+
+  onHoverLeave() {
+    this.hoverCount--;
+    if (this.previewHideTimeout) clearTimeout(this.previewHideTimeout);
+
+    // Delay hiding to allow user to move between card and preview
+    this.previewHideTimeout = setTimeout(() => {
+      if (this.hoverCount <= 0) {
+        this.hidePreview();
+      }
+    }, 100); // Tune delay if needed
+  }
 
   ngAfterViewInit(): void {
     const container = this.scrollRef.nativeElement;
@@ -86,25 +111,54 @@ export class MovieSection implements AfterViewInit {
 
   showPreview(event: MouseEvent, movie: Movie) {
     const card = event.currentTarget as HTMLElement;
-    const rect = card.getBoundingClientRect();
+    const rect = card.getBoundingClientRect(); // relative to viewport
 
-    const expandedWidth = rect.width * 1.5;
-    const leftOffset = rect.left - (expandedWidth - rect.width) / 2;
-    const clampedLeft = Math.max(
-      8,
-      Math.min(leftOffset, window.innerWidth - expandedWidth - 8)
-    );
-    const clampedTop = Math.max(8, rect.top - 80);
+    const scaleFactor = 1.3;
+    const previewWidth = rect.width * scaleFactor;
+    const previewHeight = rect.height * scaleFactor;
+
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+
+    const left = rect.left + scrollX;
+
+    // Default: vertically center preview on the card (render in front of it)
+    let top = rect.top + scrollY + (rect.height - previewHeight) / 2;
+
+    const previewBottom = top + previewHeight;
+    const viewportTop = scrollY;
+    const viewportBottom = scrollY + window.innerHeight;
+
+    // If preview would go below the viewport, shift up
+    if (previewBottom > viewportBottom - 16) {
+      top = viewportBottom - previewHeight - 140;
+    }
+
+    // If preview would go above the viewport, shift down
+    if (top < viewportTop + 8) {
+      top = viewportTop + 8;
+    }
+
+    // Center horizontally
+    let adjustedLeft = left - (previewWidth - rect.width) / 2;
+    const maxLeft = window.innerWidth - previewWidth - 32;
+    adjustedLeft = Math.max(8, Math.min(adjustedLeft, maxLeft));
 
     this.previewMovie.set(movie);
     this.previewStyle.set({
-      top: `${clampedTop}px`,
-      left: `${clampedLeft}px`,
-      width: `${expandedWidth}px`,
+      position: 'absolute',
+      top: `${top}px`,
+      left: `${adjustedLeft}px`,
+      width: `${previewWidth}px`,
     });
+
+    setTimeout(() => {
+      this.previewVisible.set(true);
+    }, 10); // small delay to trigger transition
   }
 
   hidePreview() {
+    this.previewVisible.set(false);
     this.previewMovie.set(null);
     this.previewStyle.set(null);
   }
