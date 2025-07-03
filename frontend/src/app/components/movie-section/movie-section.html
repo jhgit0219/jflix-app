@@ -1,39 +1,94 @@
-<!-- Outer section is fixed to viewport width -->
-<section
-  class="w-full max-w-screen overflow-hidden section space-y-4 group relative"
-  (mouseenter)="isHovered.set(true)"
-  (mouseleave)="isHovered.set(false)"
->
-  <h2 class="text-category-heading">Category Title</h2>
+<section class="w-full max-w-screen overflow-hidden section relative">
+  <h2 class="text-category-heading pb-4">Category Title</h2>
 
-  <div class="relative">
+  <!-- Only this part is hover-sensitive -->
+  <div
+    class="relative group"
+    (mouseenter)="isHovered.set(true)"
+    (mouseleave)="isHovered.set(false)"
+  >
     <!-- Left arrow -->
     <div
       *ngIf="isHovered() && !atStart()"
-      class="absolute left-0 top-0 h-full w-12 bg-black/40 flex items-center justify-center z-10 hover:bg-black/60 transition"
-      (click)="scroll('left')"
+      class="absolute left-0 top-0 h-full w-16 z-10 transition"
     >
-      <lucide-icon name="chevron-left" class="text-white w-6 h-6" />
+      <div
+        class="h-full w-full bg-black/40 flex items-center justify-center hover:bg-black/60 cursor-pointer transition"
+        (click)="scroll('left')"
+        (mouseenter)="arrowHoverLeft = true"
+        (mouseleave)="arrowHoverLeft = false"
+      >
+        <svg
+          [ngClass]="{
+      'h-10': !arrowHoverLeft,
+      'h-12': arrowHoverLeft
+    }"
+          class="text-white w-6 transition-all duration-200 ease-in-out"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 16 32"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 4L4 16L12 28"
+          />
+        </svg>
+      </div>
     </div>
 
     <!-- Right arrow -->
     <div
       *ngIf="isHovered() && !atEnd()"
-      class="absolute right-0 top-0 h-full w-12 bg-black/40 flex items-center justify-center z-10 hover:bg-black/60 transition"
-      (click)="scroll('right')"
+      class="absolute right-0 top-0 h-full w-16 z-10 transition"
     >
-      <lucide-icon name="chevron-right" class="text-white w-6 h-6" />
+      <div
+        class="h-full w-full bg-black/40 flex items-center justify-center hover:bg-black/60 cursor-pointer transition"
+        (click)="scroll('right')"
+        (mouseenter)="arrowHoverRight = true"
+        (mouseleave)="arrowHoverRight = false"
+      >
+        <svg
+          [ngClass]="{
+      'h-10': !arrowHoverRight,
+      'h-12': arrowHoverRight
+    }"
+          class="text-white w-6 transition-all duration-200 ease-in-out"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 16 32"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M4 4L12 16L4 28"
+          />
+        </svg>
+      </div>
     </div>
 
+    <!-- Movie row -->
     <div
       #scrollRef
-      class="flex overflow-x-auto gap-4 scroll-smooth p-4 box-border no-scrollbar"
+      class="flex overflow-x-auto gap-2 scroll-smooth box-border no-scrollbar"
     >
       <app-movie-card
         *ngFor="let movie of placeholderMovies"
         [title]="movie.title"
         [image]="movie.image"
+        (mouseenter)="showPreview($event, movie)"
+        (mouseleave)="hidePreview()"
       />
     </div>
   </div>
 </section>
+
+<app-movie-card-preview
+  *ngIf="previewMovie() && previewStyle()"
+  [movie]="previewMovie()!"
+  [style]="previewStyle()!"
+/>

@@ -9,11 +9,13 @@ import {
 import { CommonModule } from '@angular/common';
 import { MovieCard } from '../movie-card/movie-card';
 import { LucideAngularModule } from 'lucide-angular';
+import { MovieCardPreview } from '../movie-card-preview/movie-card-preview';
+import { Movie } from '../../models/movie.model';
 
 @Component({
   selector: 'app-movie-section',
   standalone: true,
-  imports: [CommonModule, MovieCard, LucideAngularModule],
+  imports: [CommonModule, MovieCard, LucideAngularModule, MovieCardPreview],
   templateUrl: './movie-section.html',
   styleUrls: ['./movie-section.css'],
 })
@@ -22,14 +24,25 @@ export class MovieSection implements AfterViewInit {
   scrollRef!: ElementRef<HTMLDivElement>;
 
   placeholderMovies = Array.from({ length: 20 }, (_, i) => ({
+    id: i,
     title: `Movie ${i + 1}`,
     image: '/placeholder.jpg',
+    match: 98 - i, // Fake match %
+    rating: i % 2 === 0 ? '18+' : '13+',
+    year: 2019 + (i % 5),
+    genres: ['Action', 'Adventure', 'Thriller'].slice(0, (i % 3) + 1),
   }));
 
   isHovered = signal(false);
   atStart = signal(true);
   atEnd = signal(false);
   cardWidth = signal(0);
+
+  previewMovie = signal<Movie | null>(null);
+  previewStyle = signal<Partial<CSSStyleDeclaration> | null>(null);
+
+  arrowHoverLeft = false;
+  arrowHoverRight = false;
 
   ngAfterViewInit(): void {
     const container = this.scrollRef.nativeElement;
@@ -69,5 +82,30 @@ export class MovieSection implements AfterViewInit {
       left: direction === 'left' ? -scrollAmount : scrollAmount,
       behavior: 'smooth',
     });
+  }
+
+  showPreview(event: MouseEvent, movie: Movie) {
+    const card = event.currentTarget as HTMLElement;
+    const rect = card.getBoundingClientRect();
+
+    const expandedWidth = rect.width * 1.5;
+    const leftOffset = rect.left - (expandedWidth - rect.width) / 2;
+    const clampedLeft = Math.max(
+      8,
+      Math.min(leftOffset, window.innerWidth - expandedWidth - 8)
+    );
+    const clampedTop = Math.max(8, rect.top - 80);
+
+    this.previewMovie.set(movie);
+    this.previewStyle.set({
+      top: `${clampedTop}px`,
+      left: `${clampedLeft}px`,
+      width: `${expandedWidth}px`,
+    });
+  }
+
+  hidePreview() {
+    this.previewMovie.set(null);
+    this.previewStyle.set(null);
   }
 }
