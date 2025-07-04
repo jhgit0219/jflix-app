@@ -1,5 +1,5 @@
 <section class="w-full max-w-screen overflow-hidden section relative">
-  <h2 class="text-category-heading pb-4">Category Title</h2>
+  <h2 class="text-category-heading pb-4">{{title}}</h2>
 
   <!-- Only this part is hover-sensitive -->
   <div
@@ -77,9 +77,8 @@
       class="flex overflow-x-auto gap-2 scroll-smooth box-border no-scrollbar"
     >
       <app-movie-card
-        *ngFor="let movie of placeholderMovies"
-        [title]="movie.title"
-        [image]="movie.image"
+        *ngFor="let movie of movieList"
+        [movie]="movie"
         (mouseenter)="onHoverEnter(); showPreview($event, movie)"
         (mouseleave)="onHoverLeave()"
       />
@@ -89,7 +88,7 @@
 <app-movie-card-preview
   *ngIf="previewMovie() && previewStyle()"
   [movie]="previewMovie()!"
-  [style]="previewStyle()!"
+  [previewStyle]="previewStyle()!"
   [width]="previewStyle()?.width"
   [visible]="previewVisible()"
   (hoverEnter)="onHoverEnter()"

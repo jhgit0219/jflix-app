@@ -6,6 +6,7 @@ import {
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
+import { provideHttpClient } from '@angular/common/http';
 
 import {
   LucideAngularModule,
@@ -24,5 +25,6 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom(
       LucideAngularModule.pick({ Play, Info, Bell, ChevronLeft, ChevronRight })
     ),
+    provideHttpClient(),
   ],
 };

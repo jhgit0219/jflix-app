@@ -1,0 +1,19 @@
+.preview-card {
+  opacity: 0;
+  transform: scale(0.95);
+  pointer-events: none;
+  transition: opacity 0.3s ease-out 0.15s, transform 0.3s ease-out 0.15s;
+  z-index: 9999;
+  border-radius: 0.5rem;
+  background-color: #18181b; /* bg-zinc-900 */
+  color: white;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  position: absolute;
+}
+
+.preview-card.visible {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}

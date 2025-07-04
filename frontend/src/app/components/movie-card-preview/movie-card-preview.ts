@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Movie } from '../../models/movie.model'; // Adjust path if needed
 
 @Component({
   selector: 'app-movie-card-preview',
@@ -9,15 +10,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./movie-card-preview.css'],
 })
 export class MovieCardPreview {
-  @Input() movie!: {
-    title: string;
-    image: string;
-    match: number;
-    rating: string;
-    year: number;
-    genres: string[];
-  };
-
+  @Input() movie!: Movie;
   @Input() previewStyle!: Partial<CSSStyleDeclaration>;
   @Input() width?: string;
   @Input() visible: boolean = false;

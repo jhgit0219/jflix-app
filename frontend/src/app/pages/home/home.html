@@ -1,1 +1,11 @@
-<p>home works!</p>
+<app-navbar></app-navbar>
+<app-hero-section></app-hero-section>
+
+<div class="-mt-55">
+  <ng-container *ngFor="let section of sections">
+    <app-movie-section
+      [title]="section.title"
+      [endpoint]="section.endpoint"
+    ></app-movie-section>
+  </ng-container>
+</div>

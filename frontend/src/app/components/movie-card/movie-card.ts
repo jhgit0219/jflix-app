@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Movie } from '../../models/movie.model'; // Adjust path as needed
 
 @Component({
   selector: 'app-movie-card',
@@ -8,6 +9,5 @@ import { CommonModule } from '@angular/common';
   templateUrl: './movie-card.html',
 })
 export class MovieCard {
-  @Input() title!: string;
-  @Input() image!: string;
+  @Input() movie!: Movie;
 }

@@ -1,10 +1,24 @@
 <div
-  class="movie-card min-w-[calc(100vw/6.9)] flex-shrink-0 aspect-video rounded overflow-hidden bg-surface transition-transform duration-200"
+  class="movie-card min-w-[calc(100vw/6.9)] flex-shrink-0 aspect-video rounded overflow-hidden bg-surface relative transition-transform duration-200"
 >
+  <!-- Movie backdrop -->
   <img
-    [src]="image"
-    [alt]="title"
+    [src]="movie.backdrop || '/fallback-image.jpg'"
+    [alt]="movie.title"
     class="w-full h-full object-cover"
     draggable="false"
   />
+
+  <!-- Movie logo overlay (constrained inside bounds) -->
+  <div
+    *ngIf="movie.logo"
+    class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"
+  >
+    <img
+      [src]="movie.logo"
+      [alt]="movie.title + ' logo'"
+      class="max-h-[80%] max-w-[90%] object-contain drop-shadow-xl"
+      draggable="false"
+    />
+  </div>
 </div>

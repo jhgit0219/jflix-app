@@ -1,5 +1,10 @@
 <nav
-  class="w-full bg-background text-foreground px-6 py-4 flex items-center justify-between"
+  class="w-full px-6 py-4 flex items-center justify-between transition-colors duration-300"
+  [ngClass]="{ 
+    'fixed top-0 left-0 z-50': true,
+    'bg-black': scrolled,
+    'bg-gradient-to-b from-black/80 to-transparent': !scrolled 
+  }"
 >
   <div class="flex items-center gap-30">
     <div class="text-heading">
@@ -7,11 +12,13 @@
     </div>
 
     <div class="hidden md:flex gap-12">
-      <a routerLink="#" class="nav-link">What's New</a>
-      <a routerLink="#" class="nav-link">Movies</a>
-      <a routerLink="#" class="nav-link">Series</a>
-      <a routerLink="#" class="nav-link">Kids</a>
-      <a routerLink="#" class="nav-link">My List</a>
+      <a
+        *ngFor="let link of navLinks"
+        [routerLink]="link.href"
+        class="nav-link"
+      >
+        {{ link.label }}
+      </a>
     </div>
   </div>
 

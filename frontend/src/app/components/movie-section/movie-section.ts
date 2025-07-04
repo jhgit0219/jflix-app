@@ -1,8 +1,10 @@
 import {
   Component,
+  Input,
   ElementRef,
   ViewChild,
   AfterViewInit,
+  OnInit,
   signal,
   effect,
 } from '@angular/core';
@@ -11,6 +13,7 @@ import { MovieCard } from '../movie-card/movie-card';
 import { LucideAngularModule } from 'lucide-angular';
 import { MovieCardPreview } from '../movie-card-preview/movie-card-preview';
 import { Movie } from '../../models/movie.model';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-movie-section',
@@ -19,19 +22,26 @@ import { Movie } from '../../models/movie.model';
   templateUrl: './movie-section.html',
   styleUrls: ['./movie-section.css'],
 })
-export class MovieSection implements AfterViewInit {
+export class MovieSection implements AfterViewInit, OnInit {
+  @Input() title!: string;
+  @Input() endpoint!: string;
+
   @ViewChild('scrollRef', { static: false })
   scrollRef!: ElementRef<HTMLDivElement>;
 
-  placeholderMovies = Array.from({ length: 20 }, (_, i) => ({
-    id: i,
-    title: `Movie ${i + 1}`,
-    image: '/placeholder.jpg',
-    match: 98 - i, // Fake match %
-    rating: i % 2 === 0 ? '18+' : '13+',
-    year: 2019 + (i % 5),
-    genres: ['Action', 'Adventure', 'Thriller'].slice(0, (i % 3) + 1),
-  }));
+  movies = signal<Movie[]>([]);
+
+  constructor(private http: HttpClient) {}
+
+  ngOnInit(): void {
+    console.log('MovieSection initialized with endpoint:', this.endpoint);
+    if (this.endpoint) {
+      this.http.get<Movie[]>(this.endpoint).subscribe({
+        next: (data) => this.movies.set(data),
+        error: (err) => console.error('Failed to load movies:', err),
+      });
+    }
+  }
 
   isHovered = signal(false);
   atStart = signal(true);
@@ -50,7 +60,6 @@ export class MovieSection implements AfterViewInit {
 
   onHoverEnter() {
     this.hoverCount++;
-    // Cancel any pending hide
     if (this.previewHideTimeout) {
       clearTimeout(this.previewHideTimeout);
       this.previewHideTimeout = null;
@@ -61,18 +70,16 @@ export class MovieSection implements AfterViewInit {
     this.hoverCount--;
     if (this.previewHideTimeout) clearTimeout(this.previewHideTimeout);
 
-    // Delay hiding to allow user to move between card and preview
     this.previewHideTimeout = setTimeout(() => {
       if (this.hoverCount <= 0) {
         this.hidePreview();
       }
-    }, 100); // Tune delay if needed
+    }, 100);
   }
 
   ngAfterViewInit(): void {
     const container = this.scrollRef.nativeElement;
 
-    // Initial scroll state after layout
     setTimeout(() => this.updateScrollEdges(), 0);
 
     container.addEventListener('scroll', this.updateScrollEdges);
@@ -111,7 +118,7 @@ export class MovieSection implements AfterViewInit {
 
   showPreview(event: MouseEvent, movie: Movie) {
     const card = event.currentTarget as HTMLElement;
-    const rect = card.getBoundingClientRect(); // relative to viewport
+    const rect = card.getBoundingClientRect();
 
     const scaleFactor = 1.3;
     const previewWidth = rect.width * scaleFactor;
@@ -119,47 +126,59 @@ export class MovieSection implements AfterViewInit {
 
     const scrollX = window.scrollX;
     const scrollY = window.scrollY;
+    const cardLeft = rect.left + scrollX;
+    const cardTop = rect.top + scrollY;
 
-    const left = rect.left + scrollX;
-
-    // Default: vertically center preview on the card (render in front of it)
-    let top = rect.top + scrollY + (rect.height - previewHeight) / 2;
+    let top = cardTop + (rect.height - previewHeight) / 2;
+    let left = cardLeft - (previewWidth - rect.width) / 2;
 
     const previewBottom = top + previewHeight;
     const viewportTop = scrollY;
     const viewportBottom = scrollY + window.innerHeight;
+    const viewportLeft = scrollX;
+    const viewportRight = scrollX + window.innerWidth;
 
-    // If preview would go below the viewport, shift up
-    if (previewBottom > viewportBottom - 16) {
+    // Vertical bounds
+    if (previewBottom > viewportBottom - 140) {
       top = viewportBottom - previewHeight - 140;
     }
-
-    // If preview would go above the viewport, shift down
     if (top < viewportTop + 8) {
       top = viewportTop + 8;
     }
 
-    // Center horizontally
-    let adjustedLeft = left - (previewWidth - rect.width) / 2;
-    const maxLeft = window.innerWidth - previewWidth - 32;
-    adjustedLeft = Math.max(8, Math.min(adjustedLeft, maxLeft));
+    // Horizontal edge buffer (for arrows)
+    const edgeBuffer = 100;
+
+    const minLeft = viewportLeft + edgeBuffer;
+    const maxLeft = viewportRight - previewWidth - edgeBuffer;
+
+    if (left < minLeft) {
+      left = minLeft;
+    }
+    if (left > maxLeft) {
+      left = maxLeft;
+    }
 
     this.previewMovie.set(movie);
     this.previewStyle.set({
       position: 'absolute',
       top: `${top}px`,
-      left: `${adjustedLeft}px`,
+      left: `${left}px`,
       width: `${previewWidth}px`,
     });
 
     setTimeout(() => {
       this.previewVisible.set(true);
-    }, 10); // small delay to trigger transition
+    }, 5);
   }
 
   hidePreview() {
     this.previewVisible.set(false);
     this.previewMovie.set(null);
     this.previewStyle.set(null);
+  }
+
+  get movieList(): Movie[] {
+    return this.movies();
   }
 }
