@@ -10,33 +10,112 @@
       [src]="movie.backdrop"
       alt="{{ movie.title }}"
       [style.width]="width"
-      class="aspect-[16/9] object-cover"
+      class="aspect-[16/9] object-cover z-5"
     />
     <img
       *ngIf="movie.logo"
       [src]="movie.logo"
       alt="{{ movie.title }} logo"
-      class="absolute inset-0 mx-auto my-auto max-h-[90%] max-w-[80%] object-contain pointer-events-none shadow-xl"
+      class="absolute inset-0 mx-auto my-auto max-h-[90%] max-w-[80%] object-contain pointer-events-none"
     />
+    <div
+      class="absolute bottom-4 left-4 text-white text-xl font-bold"
+      style="
+        text-shadow: 0 0 2px rgba(0, 0, 0, 1), 0 0 4px rgba(0, 0, 0, 0.9),
+          0 0 8px rgba(0, 0, 0, 0.8), 0 0 16px rgba(0, 0, 0, 0.7);
+      "
+    >
+      {{ movie.title }}
+    </div>
   </div>
 
   <div class="p-4 space-y-2 text-sm">
     <div class="flex items-center space-x-3">
-      <button
-        class="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center hover:scale-110 transition"
-      >
-        ▶
-      </button>
-      <button
-        class="w-8 h-8 rounded-full border border-gray-400 text-lg font-bold flex items-center justify-center hover:scale-110 transition"
-      >
-        +
-      </button>
-      <button
-        class="ml-auto w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center hover:rotate-180 transition"
-      >
-        ⌵
-      </button>
+      <div class="relative group">
+        <button
+          (click)="playMovie(movie)"
+          class="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center hover:scale-110 transition"
+        >
+          <lucide-angular [img]="Play" class="w-4 h-4" />
+        </button>
+        <div
+          class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white text-black text-xs font-medium px-2 py-1 rounded shadow opacity-0 group-hover:opacity-100 transition"
+        >
+          Play
+          <div
+            class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-white"
+          ></div>
+        </div>
+      </div>
+
+      <div class="relative group">
+        <button
+          (click)="addToList(movie)"
+          class="w-8 h-8 rounded-full border border-gray-400 text-white flex items-center justify-center hover:scale-110 transition"
+        >
+          <lucide-angular [img]="Plus" class="w-4 h-4" />
+        </button>
+        <div
+          class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white text-black text-xs font-medium px-2 py-1 rounded shadow opacity-0 group-hover:opacity-100 transition"
+        >
+          Add to My List
+          <div
+            class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-white"
+          ></div>
+        </div>
+      </div>
+
+      <div class="relative group">
+        <button
+          (click)="likeMovie(movie)"
+          class="w-8 h-8 rounded-full border border-white text-white flex items-center justify-center hover:bg-white hover:text-black transition"
+        >
+          <lucide-angular [img]="ThumbsUp" class="w-4 h-4" />
+        </button>
+        <div
+          class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white text-black text-xs font-medium px-2 py-1 rounded shadow opacity-0 group-hover:opacity-100 transition"
+        >
+          Like
+          <div
+            class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-white"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Dislike -->
+      <div class="relative group">
+        <button
+          (click)="dislikeMovie(movie)"
+          class="w-8 h-8 rounded-full border border-white text-white flex items-center justify-center hover:bg-white hover:text-black transition"
+        >
+          <lucide-angular [img]="ThumbsDown" class="w-4 h-4" />
+        </button>
+        <div
+          class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white text-black text-xs font-medium px-2 py-1 rounded shadow opacity-0 group-hover:opacity-100 transition"
+        >
+          Dislike
+          <div
+            class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-white"
+          ></div>
+        </div>
+      </div>
+      <!-- Details Toggle -->
+      <div class="relative group ml-auto">
+        <button
+          (click)="toggleDetails(movie)"
+          class="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center hover:scale-110 transition"
+        >
+          <lucide-angular [img]="ChevronDown" class="w-4 h-4" />
+        </button>
+        <div
+          class="absolute bottom-full mb-2 right-0 whitespace-nowrap bg-white text-black text-xs font-medium px-2 py-1 rounded shadow opacity-0 group-hover:opacity-100 transition"
+        >
+          Show Details
+          <div
+            class="absolute top-full right-3 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-white"
+          ></div>
+        </div>
+      </div>
     </div>
 
     <div class="flex items-center space-x-2 text-xs">

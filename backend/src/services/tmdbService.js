@@ -107,7 +107,7 @@ exports.getMovieById = async (id) => {
     backdrop: movie.backdrop_path
       ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
       : null,
-    logo, // ✅ add logo here too
+    logo,
     description: movie.overview || null,
     year: movie.release_date
       ? parseInt(movie.release_date.split("-")[0])
