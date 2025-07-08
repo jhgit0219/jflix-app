@@ -8,7 +8,6 @@ async function verifyToken(req, res) {
 
     const decoded = await authService.verifyFirebaseToken(idToken);
 
-    // 🧠 Store in MongoDB
     let user = await User.findOne({ firebaseUid: decoded.uid });
     if (!user) {
       user = await User.create({
@@ -30,3 +29,4 @@ async function verifyToken(req, res) {
     res.status(500).send("verifyToken crashed");
   }
 }
+module.exports = { verifyToken };
