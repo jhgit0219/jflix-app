@@ -1,0 +1,22 @@
+<form (submit)="login(); $event.preventDefault()" class="space-y-4">
+  <input
+    [(ngModel)]="email"
+    type="email"
+    placeholder="Email"
+    required
+    class="border px-3 py-2 w-full"
+    name="email"
+  />
+  <input
+    [(ngModel)]="password"
+    type="password"
+    placeholder="Password"
+    required
+    class="border px-3 py-2 w-full"
+    name="password"
+  />
+  <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded">
+    Login
+  </button>
+  <p *ngIf="error" class="text-sm text-red-500">{{ error }}</p>
+</form>

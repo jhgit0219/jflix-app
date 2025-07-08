@@ -1,9 +1,9 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { app } from '../../../environments/firebase.config';
-
+import { AuthService } from '../../services/auth.service';
+import { UserService, UserData } from '../../services/user.service';
+import { Subscription } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
@@ -12,29 +12,48 @@ import { LucideAngularModule } from 'lucide-angular';
   imports: [CommonModule, RouterModule, LucideAngularModule],
   templateUrl: './navbar.html',
 })
-export class Navbar {
-  user: any = null;
+export class Navbar implements OnInit, OnDestroy {
+  user: UserData | null = null;
   scrolled = false;
+  private sub!: Subscription;
 
   navLinks = [
-    { label: "What's New", href: '#' },
-    { label: 'Movies', href: '#' },
-    { label: 'Series', href: '#' },
-    { label: 'Kids', href: '#' },
-    { label: 'My List', href: '#' },
+    { label: "What's New", href: '/', requiresAuth: false },
+    { label: 'Movies', href: '/movies', requiresAuth: false },
+    { label: 'Series', href: '/series', requiresAuth: false },
+    { label: 'Kids', href: '/kids', requiresAuth: false },
+    { label: 'My List', href: '/my-list', requiresAuth: true },
+    { label: 'Account', href: '/account', requiresAuth: true },
   ];
 
-  ngOnInit(): void {
-    const auth = getAuth(app);
-    onAuthStateChanged(auth, (firebaseUser) => {
-      this.user = firebaseUser;
-    });
+  constructor(
+    private authService: AuthService,
+    private userService: UserService
+  ) {}
 
-    this.onScroll(); // initialize scroll state
+  ngOnInit(): void {
+    this.onScroll();
+    this.userService.restoreUser();
+    this.sub = this.userService.user$.subscribe((user) => {
+      this.user = user;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
   }
 
   @HostListener('window:scroll', [])
   onScroll() {
     this.scrolled = window.scrollY > 20;
+  }
+
+  logout() {
+    // Delay user clearing until after reload
+    setTimeout(() => {
+      this.userService.logout();
+    }, 0);
+
+    location.reload(); // triggers before the DOM visibly changes
   }
 }

@@ -18,13 +18,15 @@
     </div>
 
     <div class="hidden md:flex gap-12">
-      <a
-        *ngFor="let link of navLinks"
-        [routerLink]="link.href"
-        class="nav-link"
-      >
-        {{ link.label }}
-      </a>
+      <ng-container *ngFor="let link of navLinks">
+        <a
+          *ngIf="!link.requiresAuth || user"
+          [routerLink]="link.href"
+          class="nav-link"
+        >
+          {{ link.label }}
+        </a>
+      </ng-container>
     </div>
   </div>
 
@@ -38,12 +40,20 @@
     <lucide-angular name="Bell" class="w-5 h-5 cursor-pointer"></lucide-angular>
 
     <ng-container *ngIf="user; else guestLinks">
-      <a routerLink="/account" class="nav-link">Account</a>
+      <ng-container *ngTemplateOutlet="loggedInLinks"></ng-container>
     </ng-container>
 
     <ng-template #guestLinks>
       <a routerLink="/login" class="nav-button nav-login">Login</a>
       <a routerLink="/signup" class="nav-button nav-signup">Sign Up</a>
+    </ng-template>
+
+    <ng-template #loggedInLinks>
+      <a routerLink="/account" class="nav-link">Account</a>
+      <span class="text-white">Welcome, {{ user?.email || 'User' }}</span>
+      <button (click)="logout()" class="text-sm text-white underline">
+        Logout
+      </button>
     </ng-template>
   </div>
 </nav>

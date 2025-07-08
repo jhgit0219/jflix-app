@@ -11,12 +11,11 @@ if (!mongoUri) {
 mongoose
   .connect(mongoUri)
   .then(() => {
-    console.log("✅ MongoDB connected");
     app.listen(PORT, () => {
-      console.log(`🚀 Server is running at http://localhost:${PORT}`);
+      console.log(`Server is running at http://localhost:${PORT}`);
     });
   })
   .catch((err) => {
-    console.error("❌ MongoDB connection error:", err.message);
+    console.error("MongoDB connection error:", err.message);
     process.exit(1);
   });
