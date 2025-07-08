@@ -4,7 +4,12 @@ const successColor = "\x1b[32m%s\x1b[0m";
 const checkSign = "\u{2705}";
 const dotenv = require("dotenv").config({ path: "./.env" });
 
-const makeEnvContent = (production) => `export const environment = {
+const makeEnvContent = (production) => {
+  const backendUrl = production
+    ? process.env.PROD_API_BACKEND
+    : process.env.DEV_API_BACKEND;
+
+  return `export const environment = {
   production: ${production},
   firebase: {
     apiKey: '${process.env.FIREBASE_API_KEY}',
@@ -15,15 +20,14 @@ const makeEnvContent = (production) => `export const environment = {
     messagingSenderId: '${process.env.FIREBASE_MESSAGING_SENDER_ID}',
   },
   api: {
-    backend: '${process.env.API_BACKEND}',
+    backend: '${backendUrl}',
   },
+};\n`;
 };
-`;
 
 const writeEnvFile = (fileName, content) => {
   const targetPath = path.join(__dirname, `./src/environments/${fileName}`);
   fs.writeFileSync(targetPath, content);
-  console.log(successColor, `${checkSign} Successfully generated ${fileName}`);
 };
 
 // Generate both files
