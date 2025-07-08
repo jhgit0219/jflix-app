@@ -8,7 +8,6 @@ const firebaseConfig = environment.firebase;
 
 // Initialize app once
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-console.log('🚀 Connected to Firebase project:', app.options.projectId);
 // Export Firebase services
 export { app };
 export const auth = getAuth(app);
