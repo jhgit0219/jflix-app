@@ -26,19 +26,26 @@ export class MovieSection implements AfterViewInit, OnInit {
   @Input() title!: string;
   @Input() endpoint!: string;
 
+  skeletonArray = Array(7);
+
   @ViewChild('scrollRef', { static: false })
   scrollRef!: ElementRef<HTMLDivElement>;
 
   movies = signal<Movie[]>([]);
+  loading = signal(true);
 
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    console.log('MovieSection initialized with endpoint:', this.endpoint);
     if (this.endpoint) {
       this.http.get<Movie[]>(this.endpoint).subscribe({
-        next: (data) => this.movies.set(data),
-        error: (err) => console.error('Failed to load movies:', err),
+        next: (data) => {
+          this.movies.set(data);
+          this.loading.set(false);
+        },
+        error: (err) => {
+          this.loading.set(false);
+        },
       });
     }
   }

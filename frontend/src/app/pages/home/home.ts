@@ -20,6 +20,7 @@ interface HomeSection {
 })
 export class Home implements OnInit {
   sections: HomeSection[] = [];
+  loading = true;
 
   constructor(private http: HttpClient) {}
 
@@ -29,29 +30,52 @@ export class Home implements OnInit {
 
     this.http
       .get<{ id: number; name: string }[]>(`${baseUrl}/api/movies/genres`)
-      .subscribe((genres) => {
-        const genreMap = new Map(
-          genres.map((g) => [g.name.toLowerCase(), g.id])
-        );
+      .subscribe({
+        next: (genres) => {
+          const genreMap = new Map(
+            genres.map((g) => [g.name.toLowerCase(), g.id])
+          );
 
-        this.sections = [
-          {
-            title: 'Trending Now',
-            endpoint: `${baseUrl}/api/movies/category/popular`,
-          },
-          {
-            title: 'Top Rated',
-            endpoint: `${baseUrl}/api/movies/category/top_rated`,
-          },
-          {
-            title: 'Action',
-            endpoint: `${baseUrl}/api/movies/genre/${genreMap.get('action')}`,
-          },
-          {
-            title: 'Comedy',
-            endpoint: `${baseUrl}/api/movies/genre/${genreMap.get('comedy')}`,
-          },
-        ];
+          this.sections = [
+            {
+              title: 'Trending Now',
+              endpoint: `${baseUrl}/api/movies/category/popular`,
+            },
+            {
+              title: 'Top Rated',
+              endpoint: `${baseUrl}/api/movies/category/top_rated`,
+            },
+            {
+              title: 'Action',
+              endpoint: `${baseUrl}/api/movies/genre/${genreMap.get('action')}`,
+            },
+            {
+              title: 'Comedy',
+              endpoint: `${baseUrl}/api/movies/genre/${genreMap.get('comedy')}`,
+            },
+          ];
+
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Failed to load genres:', err);
+
+          // ✅ Fallback placeholder sections (no endpoints)
+          this.sections = [
+            { title: 'Trending Now', endpoint: '' },
+            { title: 'Top Rated', endpoint: '' },
+            { title: 'Action', endpoint: '' },
+            { title: 'Comedy', endpoint: '' },
+          ];
+
+          this.loading = false;
+        },
       });
+  }
+  ngAfterViewInit(): void {
+    // Use microtask to delay scroll until rendering settles
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }, 0);
   }
 }

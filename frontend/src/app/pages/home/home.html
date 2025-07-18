@@ -2,10 +2,21 @@
 <app-hero-section></app-hero-section>
 
 <div class="-mt-55">
-  <ng-container *ngFor="let section of sections">
-    <app-movie-section
-      [title]="section.title"
-      [endpoint]="section.endpoint"
-    ></app-movie-section>
+  <ng-container
+    *ngIf="!loading && sections.length > 0; else loadingOrErrorSections"
+  >
+    <ng-container *ngFor="let section of sections">
+      <app-movie-section
+        [title]="section.title"
+        [endpoint]="section.endpoint"
+      ></app-movie-section>
+    </ng-container>
   </ng-container>
+
+  <ng-template #loadingOrErrorSections>
+    <app-movie-section title="Trending Now" endpoint=""></app-movie-section>
+    <app-movie-section title="Top Rated" endpoint=""></app-movie-section>
+    <app-movie-section title="Action" endpoint=""></app-movie-section>
+    <app-movie-section title="Comedy" endpoint=""></app-movie-section>
+  </ng-template>
 </div>
