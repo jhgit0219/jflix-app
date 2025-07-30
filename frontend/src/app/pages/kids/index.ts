@@ -1,0 +1,1 @@
+export { KidsComponent } from './kids';

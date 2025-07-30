@@ -5,6 +5,7 @@ export interface UserData {
   uid: string;
   email: string;
   name?: string;
+  createdAt?: string;
 }
 
 @Injectable({ providedIn: 'root' })

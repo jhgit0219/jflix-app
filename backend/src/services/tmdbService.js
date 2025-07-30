@@ -1,7 +1,3 @@
-/**
- * @typedef {import('../types/types').Movie} Movie
- */
-
 const axios = require("axios");
 
 const tmdb = axios.create({
@@ -14,7 +10,6 @@ const tmdb = axios.create({
   },
 });
 
-// Cache genre mapping to avoid repeated API calls
 let genreMap = null;
 
 const loadGenres = async () => {
@@ -27,12 +22,6 @@ const loadGenres = async () => {
   return genreMap;
 };
 
-/**
- * Normalize TMDB movie object into our shared `Movie` structure
- * @param {Object} movie - TMDB movie object
- * @param {Object} genreMap - Map of genreId to genreName
- * @returns {Movie}
- */
 const normalizeMovie = (movie, genreMap, logo = null) => ({
   id: movie.id,
   title: movie.title,
@@ -49,32 +38,10 @@ const normalizeMovie = (movie, genreMap, logo = null) => ({
   rating: "13+",
 });
 
-/**
- * @param {string} type - e.g. "popular", "top_rated", "now_playing"
- * @returns {Promise<Movie[]>}
- */
-exports.getMoviesByCategory = async (type) => {
+exports.getMoviesByCategory = async (type, page = 1) => {
   const genres = await loadGenres();
-  const res = await tmdb.get(`/movie/${type}`);
-
-  const movies = await Promise.all(
-    res.data.results.map(async (m) => {
-      const logo = await fetchMovieLogo(m.id);
-      return normalizeMovie(m, genres, logo);
-    })
-  );
-
-  return movies;
-};
-
-/**
- * @param {number} genreId
- * @returns {Promise<Movie[]>}
- */
-exports.getMoviesByGenre = async (genreId) => {
-  const genres = await loadGenres();
-  const res = await tmdb.get("/discover/movie", {
-    params: { with_genres: genreId },
+  const res = await tmdb.get(`/movie/${type}`, {
+    params: { page },
   });
 
   const movies = await Promise.all(
@@ -84,13 +51,42 @@ exports.getMoviesByGenre = async (genreId) => {
     })
   );
 
-  return movies;
+  return {
+    results: movies,
+    page: res.data.page,
+    totalPages: res.data.total_pages,
+    totalResults: res.data.total_results,
+    hasNextPage: res.data.page < res.data.total_pages,
+    hasPrevPage: res.data.page > 1,
+  };
 };
 
-/**
- * @param {number} id
- * @returns {Promise<Movie>}
- */
+exports.getMoviesByGenre = async (genreId, page = 1) => {
+  const genres = await loadGenres();
+  const res = await tmdb.get("/discover/movie", {
+    params: {
+      with_genres: genreId,
+      page,
+    },
+  });
+
+  const movies = await Promise.all(
+    res.data.results.map(async (m) => {
+      const logo = await fetchMovieLogo(m.id);
+      return normalizeMovie(m, genres, logo);
+    })
+  );
+
+  return {
+    results: movies,
+    page: res.data.page,
+    totalPages: res.data.total_pages,
+    totalResults: res.data.total_results,
+    hasNextPage: res.data.page < res.data.total_pages,
+    hasPrevPage: res.data.page > 1,
+  };
+};
+
 exports.getMovieById = async (id) => {
   const [res, logo] = await Promise.all([
     tmdb.get(`/movie/${id}`),
@@ -117,36 +113,32 @@ exports.getMovieById = async (id) => {
   };
 };
 
-/**
- * @param {string} query
- * @returns {Promise<Movie[]>}
- */
-exports.searchMovies = async (query) => {
+exports.searchMovies = async (query, page = 1) => {
   const genres = await loadGenres();
   const res = await tmdb.get("/search/movie", {
-    params: { query },
+    params: {
+      query,
+      page,
+    },
   });
-  return res.data.results.map((m) => normalizeMovie(m, genres));
+
+  const movies = res.data.results.map((m) => normalizeMovie(m, genres));
+
+  return {
+    results: movies,
+    page: res.data.page,
+    totalPages: res.data.total_pages,
+    totalResults: res.data.total_results,
+    hasNextPage: res.data.page < res.data.total_pages,
+    hasPrevPage: res.data.page > 1,
+  };
 };
 
-/**
- * @typedef {Object} Genre
- * @property {number} id
- * @property {string} name
- */
-
-/**
- * @returns {Promise<Genre[]>}
- */
 exports.getGenres = async () => {
   const res = await tmdb.get("/genre/movie/list");
   return res.data.genres;
 };
 
-/**
- * @param {number} id
- * @returns {Promise<string|null>}
- */
 const fetchMovieLogo = async (id) => {
   try {
     const res = await tmdb.get(`/movie/${id}/images`, {

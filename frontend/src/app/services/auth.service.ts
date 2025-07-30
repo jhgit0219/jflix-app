@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { auth } from '../../environments/firebase.config'; // or your config path
+import { auth } from '../../environments/firebase.config';
 import { signInWithEmailAndPassword, UserCredential } from 'firebase/auth';
 import { firstValueFrom } from 'rxjs';
-import { environment } from '../../environments/environment'; // or your environment path
+import { environment } from '../../environments/environment';
 import { UserService } from './user.service';
 
 @Injectable({ providedIn: 'root' })

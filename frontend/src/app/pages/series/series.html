@@ -1,0 +1,53 @@
+<app-navbar></app-navbar>
+
+<div class="min-h-screen bg-black text-white pt-20">
+  <div class="container mx-auto px-6 py-8">
+    <h1 class="text-4xl font-bold mb-8">TV Series</h1>
+
+    <!-- Genre Filter -->
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold mb-4">Filter by Genre</h2>
+      <div class="flex flex-wrap gap-3">
+        <button
+          *ngFor="let genre of genres"
+          (click)="filterByGenre(genre)"
+          [class]="selectedGenre === genre 
+            ? 'bg-brand-red text-white px-4 py-2 rounded-lg font-medium' 
+            : 'bg-surface text-white px-4 py-2 rounded-lg font-medium hover:bg-muted'"
+        >
+          {{ genre }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Series Grid -->
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+    >
+      <div
+        *ngFor="let show of filteredSeries"
+        class="bg-surface rounded-lg overflow-hidden hover:scale-105 transition-transform duration-200 cursor-pointer"
+      >
+        <div class="h-48 bg-muted flex items-center justify-center">
+          <span class="text-muted-foreground text-lg"
+            >{{ show.title.charAt(0) }}</span
+          >
+        </div>
+        <div class="p-4">
+          <h3 class="text-lg font-semibold mb-2">{{ show.title }}</h3>
+          <p class="text-muted-foreground text-sm">
+            {{ show.genre }} • {{ show.seasons }} seasons • {{ show.year }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredSeries.length === 0" class="text-center py-12">
+      <h3 class="text-xl font-semibold mb-2">No series found</h3>
+      <p class="text-muted-foreground">
+        Try selecting a different genre or check back later.
+      </p>
+    </div>
+  </div>
+</div>

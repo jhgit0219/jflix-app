@@ -1,0 +1,76 @@
+<app-navbar></app-navbar>
+
+<div class="min-h-screen bg-black text-white pt-20">
+  <div class="container mx-auto px-6 py-8">
+    <h1 class="text-4xl font-bold mb-8">My List</h1>
+
+    <div *ngIf="!isAuthenticated" class="text-center py-12">
+      <h3 class="text-xl font-semibold mb-4">
+        Please log in to view your watchlist
+      </h3>
+      <a
+        routerLink="/login"
+        class="bg-brand-red text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700"
+      >
+        Login
+      </a>
+    </div>
+
+    <div *ngIf="isAuthenticated">
+      <!-- Watchlist Stats -->
+      <div class="mb-8 p-4 bg-surface rounded-lg">
+        <h2 class="text-xl font-semibold mb-2">Your Watchlist</h2>
+        <p class="text-muted-foreground">
+          {{ filteredWatchlist.length }} items in your list
+        </p>
+      </div>
+
+      <!-- Watchlist Grid -->
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+      >
+        <div
+          *ngFor="let item of filteredWatchlist"
+          class="bg-surface rounded-lg overflow-hidden hover:scale-105 transition-transform duration-200"
+        >
+          <div class="h-48 bg-muted flex items-center justify-center relative">
+            <span class="text-muted-foreground text-lg"
+              >{{ item.title.charAt(0) }}</span
+            >
+            <div
+              class="absolute top-2 right-2 bg-brand-red text-white px-2 py-1 rounded text-xs font-bold"
+            >
+              {{ item.type }}
+            </div>
+          </div>
+          <div class="p-4">
+            <h3 class="text-lg font-semibold mb-2">{{ item.title }}</h3>
+            <p class="text-muted-foreground text-sm">
+              Added: {{ item.addedDate }}
+            </p>
+            <button
+              (click)="removeFromWatchlist(item.id)"
+              class="mt-3 text-red-500 hover:text-red-400 text-sm underline"
+            >
+              Remove from list
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="filteredWatchlist.length === 0" class="text-center py-12">
+        <h3 class="text-xl font-semibold mb-2">Your watchlist is empty</h3>
+        <p class="text-muted-foreground mb-4">
+          Start adding movies and series to your list!
+        </p>
+        <a
+          routerLink="/movies"
+          class="bg-brand-red text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700"
+        >
+          Browse Movies
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

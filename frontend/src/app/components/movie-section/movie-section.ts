@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
 import { MovieCard } from '../movie-card/movie-card';
 import { LucideAngularModule } from 'lucide-angular';
 import { MovieCardPreview } from '../movie-card-preview/movie-card-preview';
-import { Movie } from '../../models/movie.model';
+import { Movie, PaginatedResponse } from '../../models/movie.model';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
@@ -38,12 +38,14 @@ export class MovieSection implements AfterViewInit, OnInit {
 
   ngOnInit(): void {
     if (this.endpoint) {
-      this.http.get<Movie[]>(this.endpoint).subscribe({
-        next: (data) => {
-          this.movies.set(data);
+      this.http.get<PaginatedResponse>(this.endpoint).subscribe({
+        next: (response) => {
+          this.movies.set(response.results);
           this.loading.set(false);
         },
         error: (err) => {
+          console.error('Failed to load movies:', err);
+          this.movies.set([]);
           this.loading.set(false);
         },
       });

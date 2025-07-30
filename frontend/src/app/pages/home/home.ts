@@ -60,7 +60,6 @@ export class Home implements OnInit {
         error: (err) => {
           console.error('Failed to load genres:', err);
 
-          // ✅ Fallback placeholder sections (no endpoints)
           this.sections = [
             { title: 'Trending Now', endpoint: '' },
             { title: 'Top Rated', endpoint: '' },
@@ -73,7 +72,6 @@ export class Home implements OnInit {
       });
   }
   ngAfterViewInit(): void {
-    // Use microtask to delay scroll until rendering settles
     setTimeout(() => {
       window.scrollTo({ top: 0, behavior: 'auto' });
     }, 0);

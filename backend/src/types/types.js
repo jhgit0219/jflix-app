@@ -11,3 +11,13 @@
  * @property {string} rating
  * @property {number=} match
  */
+
+/**
+ * @typedef {Object} PaginatedResponse
+ * @property {Movie[]} results - Array of movies
+ * @property {number} page - Current page number
+ * @property {number} totalPages - Total number of pages
+ * @property {number} totalResults - Total number of results
+ * @property {boolean} hasNextPage - Whether there's a next page
+ * @property {boolean} hasPrevPage - Whether there's a previous page
+ */

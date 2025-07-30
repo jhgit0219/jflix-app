@@ -8,10 +8,11 @@ const {
   searchMovies,
 } = require("../services/tmdbService");
 
-/**
- * GET /api/movies/genres
- * Returns all genre names and IDs
- */
+const validatePage = (page) => {
+  const pageNum = parseInt(page) || 1;
+  return Math.max(1, Math.min(pageNum, 1000));
+};
+
 router.get("/genres", async (req, res) => {
   try {
     const genres = await getGenres();
@@ -22,38 +23,29 @@ router.get("/genres", async (req, res) => {
   }
 });
 
-/**
- * GET /api/movies/category/:type
- * e.g. /category/popular, /category/top_rated
- */
 router.get("/category/:type", async (req, res) => {
   try {
-    const movies = await getMoviesByCategory(req.params.type);
-    res.json(movies);
+    const page = validatePage(req.query.page);
+    const result = await getMoviesByCategory(req.params.type, page);
+    console.log(result);
+    res.json(result);
   } catch (err) {
     console.error(`Error fetching category ${req.params.type}:`, err);
     res.status(500).send("Failed to fetch category movies");
   }
 });
 
-/**
- * GET /api/movies/genre/:id
- * Fetches movies by TMDB genre ID
- */
 router.get("/genre/:id", async (req, res) => {
   try {
-    const movies = await getMoviesByGenre(req.params.id);
-    res.json(movies);
+    const page = validatePage(req.query.page);
+    const result = await getMoviesByGenre(req.params.id, page);
+    res.json(result);
   } catch (err) {
     console.error(`Error fetching genre ${req.params.id}:`, err);
     res.status(500).send("Failed to fetch genre movies");
   }
 });
 
-/**
- * GET /api/movies/:id
- * Fetches movie details by ID
- */
 router.get("/:id", async (req, res) => {
   try {
     const movie = await getMovieById(req.params.id);
@@ -64,14 +56,11 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-/**
- * GET /api/movies/search/query?q=...
- * Search movies by query string
- */
 router.get("/search/query", async (req, res) => {
   try {
-    const results = await searchMovies(req.query.q);
-    res.json(results);
+    const page = validatePage(req.query.page);
+    const result = await searchMovies(req.query.q, page);
+    res.json(result);
   } catch (err) {
     console.error("Search failed:", err);
     res.status(500).send("Search failed");

@@ -10,3 +10,12 @@ export interface Movie {
   year: number;
   genres: string[];
 }
+
+export interface PaginatedResponse {
+  results: Movie[];
+  page: number;
+  totalPages: number;
+  totalResults: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}

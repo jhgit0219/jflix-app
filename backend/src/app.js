@@ -9,12 +9,10 @@ const pingRoutes = require("./routes/ping");
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 
-// Routes
 app.use("/api/user", userRoutes);
 app.use("/api/movies", movieRoutes);
 app.use("/api/auth", authRoutes);

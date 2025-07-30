@@ -1,0 +1,1 @@
+export { SeriesComponent } from './series';
