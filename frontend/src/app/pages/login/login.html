@@ -1,22 +1,97 @@
-<form (submit)="login(); $event.preventDefault()" class="space-y-4">
-  <input
-    [(ngModel)]="email"
-    type="email"
-    placeholder="Email"
-    required
-    class="border px-3 py-2 w-full"
-    name="email"
-  />
-  <input
-    [(ngModel)]="password"
-    type="password"
-    placeholder="Password"
-    required
-    class="border px-3 py-2 w-full"
-    name="password"
-  />
-  <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded">
-    Login
-  </button>
-  <p *ngIf="error" class="text-sm text-red-500">{{ error }}</p>
-</form>
+<div class="min-h-screen relative bg-black flex items-center justify-center">
+  <!-- Background with gradient overlay -->
+  <div
+    class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80"
+  ></div>
+
+  <!-- Netflix-style background pattern -->
+  <div class="absolute inset-0 opacity-20">
+    <div
+      class="absolute inset-0 bg-gradient-to-r from-brand-red/10 to-transparent"
+    ></div>
+    <div
+      class="absolute inset-0 bg-gradient-to-b from-transparent to-black/50"
+    ></div>
+  </div>
+
+  <!-- Login form container -->
+  <div class="relative z-10 w-full max-w-md mx-4">
+    <!-- Netflix logo/brand -->
+    <div class="text-center mb-8">
+      <h1 class="text-heading text-4xl font-extrabold mb-2">JFlix</h1>
+      <p class="text-muted text-lg">Sign in to your account</p>
+    </div>
+
+    <!-- Login form -->
+    <div
+      class="bg-surface/80 backdrop-blur-sm rounded-lg p-8 border border-muted/20 shadow-2xl"
+    >
+      <form (submit)="login(); $event.preventDefault()" class="space-y-6">
+        <div class="space-y-4">
+          <div>
+            <input
+              [(ngModel)]="email"
+              type="email"
+              placeholder="Email or phone number"
+              required
+              class="w-full px-4 py-4 bg-black/50 border border-muted/30 rounded text-foreground placeholder-muted focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red transition-colors duration-200"
+              name="email"
+            />
+          </div>
+
+          <div>
+            <input
+              [(ngModel)]="password"
+              type="password"
+              placeholder="Password"
+              required
+              class="w-full px-4 py-4 bg-black/50 border border-muted/30 rounded text-foreground placeholder-muted focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red transition-colors duration-200"
+              name="password"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-brand-red text-white py-4 rounded font-semibold text-lg hover:bg-red-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand-red focus:ring-offset-2 focus:ring-offset-black"
+        >
+          Sign In
+        </button>
+
+        <!-- Error message -->
+        <div *ngIf="error" class="text-center">
+          <p
+            class="text-red-400 text-sm bg-red-900/20 border border-red-500/30 rounded px-3 py-2"
+          >
+            {{ error }}
+          </p>
+        </div>
+
+        <!-- Additional options -->
+        <div class="text-center space-y-4">
+          <div class="flex items-center justify-between text-sm text-muted">
+            <label class="flex items-center">
+              <input type="checkbox" class="mr-2 accent-brand-red" />
+              Remember me
+            </label>
+            <a href="#" class="hover:underline">Need help?</a>
+          </div>
+
+          <div class="text-sm text-muted">
+            New to JFlix?
+            <a routerLink="/signup" class="text-white hover:underline"
+              >Sign up now</a
+            >
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Footer text -->
+    <div class="text-center mt-8 text-sm text-muted">
+      <p>
+        This page is protected by Google reCAPTCHA to ensure you're not a bot.
+      </p>
+    </div>
+  </div>
+</div>

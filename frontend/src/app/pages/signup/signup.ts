@@ -35,13 +35,25 @@ export class SignupComponent {
 
     this.loading = true;
     try {
-      console.log('Signup attempt:', {
-        email: this.email,
-        password: this.password,
-      });
+      await this.authService.signup(this.email, this.password);
       this.router.navigateByUrl('/');
-    } catch (err) {
-      this.error = 'Signup failed. Please try again.';
+    } catch (err: any) {
+      console.error('Signup error:', err);
+
+      // Handle Firebase auth errors
+      if (err.code === 'auth/email-already-in-use') {
+        this.error =
+          'An account with this email already exists. Please try logging in instead.';
+      } else if (err.code === 'auth/invalid-email') {
+        this.error = 'Please enter a valid email address.';
+      } else if (err.code === 'auth/weak-password') {
+        this.error = 'Password is too weak. Please choose a stronger password.';
+      } else if (err.code === 'auth/network-request-failed') {
+        this.error =
+          'Network error. Please check your internet connection and try again.';
+      } else {
+        this.error = 'Signup failed. Please try again.';
+      }
     } finally {
       this.loading = false;
     }
