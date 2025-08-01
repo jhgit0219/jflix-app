@@ -153,10 +153,15 @@ exports.searchMovies = async (query, page = 1) => {
     },
   });
 
-  const movies = res.data.results.map((m) => normalizeMovie(m, genres));
+  const moviesWithLogos = await Promise.all(
+    res.data.results.map(async (m) => {
+      const logo = await fetchMovieLogo(m.id);
+      return normalizeMovie(m, genres, logo);
+    })
+  );
 
   return {
-    results: movies,
+    results: moviesWithLogos,
     page: res.data.page,
     totalPages: res.data.total_pages,
     totalResults: res.data.total_results,
@@ -174,10 +179,15 @@ exports.searchSeries = async (query, page = 1) => {
     },
   });
 
-  const series = res.data.results.map((s) => normalizeSeries(s, genres));
+  const seriesWithLogos = await Promise.all(
+    res.data.results.map(async (s) => {
+      const logo = await fetchSeriesLogo(s.id);
+      return normalizeSeries(s, genres, logo);
+    })
+  );
 
   return {
-    results: series,
+    results: seriesWithLogos,
     page: res.data.page,
     totalPages: res.data.total_pages,
     totalResults: res.data.total_results,
@@ -207,14 +217,23 @@ exports.searchAll = async (query, page = 1) => {
     }),
   ]);
 
-  const movies = movieRes.data.results.map((m) =>
-    normalizeMovie(m, movieGenres)
+  const moviesWithLogos = await Promise.all(
+    movieRes.data.results.map(async (m) => {
+      const logo = await fetchMovieLogo(m.id);
+      return normalizeMovie(m, movieGenres, logo);
+    })
   );
-  const series = tvRes.data.results.map((s) => normalizeSeries(s, tvGenres));
+
+  const seriesWithLogos = await Promise.all(
+    tvRes.data.results.map(async (s) => {
+      const logo = await fetchSeriesLogo(s.id);
+      return normalizeSeries(s, tvGenres, logo);
+    })
+  );
 
   return {
     movies: {
-      results: movies,
+      results: moviesWithLogos,
       page: movieRes.data.page,
       totalPages: movieRes.data.total_pages,
       totalResults: movieRes.data.total_results,
@@ -222,7 +241,7 @@ exports.searchAll = async (query, page = 1) => {
       hasPrevPage: movieRes.data.page > 1,
     },
     series: {
-      results: series,
+      results: seriesWithLogos,
       page: tvRes.data.page,
       totalPages: tvRes.data.total_pages,
       totalResults: tvRes.data.total_results,
@@ -252,6 +271,25 @@ const fetchMovieLogo = async (id) => {
       : null;
   } catch (err) {
     console.error(`Failed to fetch logo for movie ${id}`, err.message);
+    return null;
+  }
+};
+
+const fetchSeriesLogo = async (id) => {
+  try {
+    const res = await tmdb.get(`/tv/${id}/images`, {
+      params: {
+        include_image_language: "en,null",
+      },
+    });
+
+    const logos = res.data.logos || [];
+    const bestLogo = logos.find((l) => l.iso_639_1 === "en") || logos[0];
+    return bestLogo
+      ? `https://image.tmdb.org/t/p/w500${bestLogo.file_path}`
+      : null;
+  } catch (err) {
+    console.error(`Failed to fetch logo for series ${id}`, err.message);
     return null;
   }
 };
