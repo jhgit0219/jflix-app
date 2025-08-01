@@ -11,6 +11,7 @@ const tmdb = axios.create({
 });
 
 let genreMap = null;
+let tvGenreMap = null;
 
 const loadGenres = async () => {
   if (genreMap) return genreMap;
@@ -20,6 +21,16 @@ const loadGenres = async () => {
     genreMap[genre.id] = genre.name;
   }
   return genreMap;
+};
+
+const loadTVGenres = async () => {
+  if (tvGenreMap) return tvGenreMap;
+  const res = await tmdb.get("/genre/tv/list");
+  tvGenreMap = {};
+  for (const genre of res.data.genres) {
+    tvGenreMap[genre.id] = genre.name;
+  }
+  return tvGenreMap;
 };
 
 const normalizeMovie = (movie, genreMap, logo = null) => ({
@@ -36,6 +47,26 @@ const normalizeMovie = (movie, genreMap, logo = null) => ({
   year: movie.release_date ? parseInt(movie.release_date.split("-")[0]) : null,
   genres: movie.genre_ids?.map((id) => genreMap[id]) || [],
   rating: "13+",
+  type: "movie",
+});
+
+const normalizeSeries = (series, genreMap, logo = null) => ({
+  id: series.id,
+  title: series.name,
+  image: series.poster_path
+    ? `https://image.tmdb.org/t/p/w500${series.poster_path}`
+    : null,
+  backdrop: series.backdrop_path
+    ? `https://image.tmdb.org/t/p/original${series.backdrop_path}`
+    : null,
+  logo,
+  description: series.overview || null,
+  year: series.first_air_date
+    ? parseInt(series.first_air_date.split("-")[0])
+    : null,
+  genres: series.genre_ids?.map((id) => genreMap[id]) || [],
+  rating: "13+",
+  type: "tv",
 });
 
 exports.getMoviesByCategory = async (type, page = 1) => {
@@ -131,6 +162,73 @@ exports.searchMovies = async (query, page = 1) => {
     totalResults: res.data.total_results,
     hasNextPage: res.data.page < res.data.total_pages,
     hasPrevPage: res.data.page > 1,
+  };
+};
+
+exports.searchSeries = async (query, page = 1) => {
+  const genres = await loadTVGenres();
+  const res = await tmdb.get("/search/tv", {
+    params: {
+      query,
+      page,
+    },
+  });
+
+  const series = res.data.results.map((s) => normalizeSeries(s, genres));
+
+  return {
+    results: series,
+    page: res.data.page,
+    totalPages: res.data.total_pages,
+    totalResults: res.data.total_results,
+    hasNextPage: res.data.page < res.data.total_pages,
+    hasPrevPage: res.data.page > 1,
+  };
+};
+
+exports.searchAll = async (query, page = 1) => {
+  const [movieGenres, tvGenres] = await Promise.all([
+    loadGenres(),
+    loadTVGenres(),
+  ]);
+
+  const [movieRes, tvRes] = await Promise.all([
+    tmdb.get("/search/movie", {
+      params: {
+        query,
+        page,
+      },
+    }),
+    tmdb.get("/search/tv", {
+      params: {
+        query,
+        page,
+      },
+    }),
+  ]);
+
+  const movies = movieRes.data.results.map((m) =>
+    normalizeMovie(m, movieGenres)
+  );
+  const series = tvRes.data.results.map((s) => normalizeSeries(s, tvGenres));
+
+  return {
+    movies: {
+      results: movies,
+      page: movieRes.data.page,
+      totalPages: movieRes.data.total_pages,
+      totalResults: movieRes.data.total_results,
+      hasNextPage: movieRes.data.page < movieRes.data.total_pages,
+      hasPrevPage: movieRes.data.page > 1,
+    },
+    series: {
+      results: series,
+      page: tvRes.data.page,
+      totalPages: tvRes.data.total_pages,
+      totalResults: tvRes.data.total_results,
+      hasNextPage: tvRes.data.page < tvRes.data.total_pages,
+      hasPrevPage: tvRes.data.page > 1,
+    },
   };
 };
 

@@ -6,6 +6,8 @@ const {
   getMoviesByGenre,
   getMovieById,
   searchMovies,
+  searchSeries,
+  searchAll,
 } = require("../services/tmdbService");
 
 const validatePage = (page) => {
@@ -64,6 +66,28 @@ router.get("/search/query", async (req, res) => {
   } catch (err) {
     console.error("Search failed:", err);
     res.status(500).send("Search failed");
+  }
+});
+
+router.get("/search/series", async (req, res) => {
+  try {
+    const page = validatePage(req.query.page);
+    const result = await searchSeries(req.query.q, page);
+    res.json(result);
+  } catch (err) {
+    console.error("Series search failed:", err);
+    res.status(500).send("Series search failed");
+  }
+});
+
+router.get("/search/all", async (req, res) => {
+  try {
+    const page = validatePage(req.query.page);
+    const result = await searchAll(req.query.q, page);
+    res.json(result);
+  } catch (err) {
+    console.error("Combined search failed:", err);
+    res.status(500).send("Combined search failed");
   }
 });
 

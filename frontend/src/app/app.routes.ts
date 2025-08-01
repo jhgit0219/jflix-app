@@ -40,4 +40,9 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/account').then((m) => m.AccountComponent),
   },
+  {
+    path: 'search',
+    loadComponent: () =>
+      import('./pages/search').then((m) => m.SearchComponent),
+  },
 ];

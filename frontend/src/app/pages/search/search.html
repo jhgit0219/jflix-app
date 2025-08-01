@@ -1,0 +1,152 @@
+<app-navbar></app-navbar>
+
+<div class="min-h-screen bg-black text-white pt-20">
+  <div class="w-full px-8 py-8">
+    <!-- Search Header -->
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold mb-4">Search Results</h1>
+      <div class="flex items-center gap-4 mb-6">
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="performSearch()"
+          placeholder="Search for movies and series..."
+          class="bg-surface text-foreground rounded-lg px-4 py-3 flex-1 max-w-md focus:outline-none focus:ring-2 focus:ring-brand-red"
+        />
+        <button
+          (click)="performSearch()"
+          class="bg-brand-red text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors"
+        >
+          Search
+        </button>
+      </div>
+      <p *ngIf="searchQuery" class="text-xl text-muted-foreground">
+        Results for "<span class="text-white">{{ searchQuery }}</span>"
+      </p>
+    </div>
+
+    <!-- Loading State -->
+    <div
+      *ngIf="loading && searchResults.movies.length === 0 && searchResults.series.length === 0"
+      class="text-center py-12"
+    >
+      <div
+        class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-brand-red"
+      ></div>
+      <p class="text-muted-foreground mt-4">Searching...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="text-center py-12">
+      <h3 class="text-xl font-semibold mb-2 text-red-400">{{ error }}</h3>
+      <button
+        (click)="performSearch()"
+        class="mt-4 bg-brand-red text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
+      >
+        Try Again
+      </button>
+    </div>
+
+    <!-- No Results -->
+    <div
+      *ngIf="!loading && !error && searchQuery && searchResults.movies.length === 0 && searchResults.series.length === 0"
+      class="text-center py-12"
+    >
+      <h3 class="text-xl font-semibold mb-2">No results found</h3>
+      <p class="text-muted-foreground">
+        Try searching with different keywords or check your spelling.
+      </p>
+    </div>
+
+    <!-- Movies Section -->
+    <div *ngIf="searchResults.movies.length > 0" class="mb-12">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold">Movies ({{ moviesTotal }})</h2>
+        <button
+          *ngIf="moviesHasMore"
+          (click)="loadMoreMovies()"
+          [disabled]="loadingMovies"
+          class="text-brand-red hover:text-red-400 font-medium disabled:opacity-50"
+        >
+          <span *ngIf="!loadingMovies">Show More</span>
+          <span *ngIf="loadingMovies">Loading...</span>
+        </button>
+      </div>
+
+      <div
+        class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1"
+      >
+        <app-movie-card
+          *ngFor="let movie of searchResults.movies"
+          [movie]="movie"
+          (mouseenter)="onHoverEnter(); showPreview($event, movie)"
+          (mouseleave)="onHoverLeave()"
+        />
+      </div>
+
+      <!-- Loading More Movies Indicator -->
+      <div *ngIf="loadingMovies" class="text-center py-6">
+        <div
+          class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-brand-red"
+        ></div>
+        <p class="text-muted-foreground mt-2 text-sm">Loading more movies...</p>
+      </div>
+    </div>
+
+    <!-- Series Section -->
+    <div *ngIf="searchResults.series.length > 0" class="mb-12">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold">TV Series ({{ seriesTotal }})</h2>
+        <button
+          *ngIf="seriesHasMore"
+          (click)="loadMoreSeries()"
+          [disabled]="loadingSeries"
+          class="text-brand-red hover:text-red-400 font-medium disabled:opacity-50"
+        >
+          <span *ngIf="!loadingSeries">Show More</span>
+          <span *ngIf="loadingSeries">Loading...</span>
+        </button>
+      </div>
+
+      <div
+        class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1"
+      >
+        <app-movie-card
+          *ngFor="let series of searchResults.series"
+          [movie]="series"
+          (mouseenter)="onHoverEnter(); showPreview($event, series)"
+          (mouseleave)="onHoverLeave()"
+        />
+      </div>
+
+      <!-- Loading More Series Indicator -->
+      <div *ngIf="loadingSeries" class="text-center py-6">
+        <div
+          class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-brand-red"
+        ></div>
+        <p class="text-muted-foreground mt-2 text-sm">Loading more series...</p>
+      </div>
+    </div>
+
+    <!-- Initial state when no search has been performed -->
+    <div *ngIf="!searchQuery && !loading" class="text-center py-12">
+      <h3 class="text-xl font-semibold mb-2">
+        Search for Movies and TV Series
+      </h3>
+      <p class="text-muted-foreground">
+        Enter a search term above to find your favorite content.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Movie Card Preview -->
+<app-movie-card-preview
+  *ngIf="previewMovie() && previewStyle()"
+  [movie]="previewMovie()!"
+  [previewStyle]="previewStyle()!"
+  [width]="previewStyle()?.width"
+  [visible]="previewVisible()"
+  (hoverEnter)="onHoverEnter()"
+  (hoverLeave)="onHoverLeave()"
+/>

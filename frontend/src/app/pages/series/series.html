@@ -1,7 +1,7 @@
 <app-navbar></app-navbar>
 
 <div class="min-h-screen bg-black text-white pt-20">
-  <div class="container mx-auto px-6 py-8">
+  <div class="w-full px-8 py-8">
     <h1 class="text-4xl font-bold mb-8">TV Series</h1>
 
     <!-- Genre Filter -->
@@ -9,41 +9,78 @@
       <h2 class="text-xl font-semibold mb-4">Filter by Genre</h2>
       <div class="flex flex-wrap gap-3">
         <button
-          *ngFor="let genre of genres"
-          (click)="filterByGenre(genre)"
-          [class]="selectedGenre === genre 
+          (click)="filterByGenre(null)"
+          [class]="selectedGenre === null 
             ? 'bg-brand-red text-white px-4 py-2 rounded-lg font-medium' 
             : 'bg-surface text-white px-4 py-2 rounded-lg font-medium hover:bg-muted'"
         >
-          {{ genre }}
+          All Series
+        </button>
+        <button
+          *ngFor="let genre of genres"
+          (click)="filterByGenre(genre.id)"
+          [class]="selectedGenre === genre.id 
+            ? 'bg-brand-red text-white px-4 py-2 rounded-lg font-medium' 
+            : 'bg-surface text-white px-4 py-2 rounded-lg font-medium hover:bg-muted'"
+        >
+          {{ genre.name }}
         </button>
       </div>
     </div>
 
+    <!-- Loading State -->
+    <div *ngIf="loading && movies.length === 0" class="text-center py-12">
+      <div
+        class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-brand-red"
+      ></div>
+      <p class="text-muted-foreground mt-4">Loading series...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="text-center py-12">
+      <h3 class="text-xl font-semibold mb-2 text-red-400">{{ error }}</h3>
+      <button
+        (click)="loadMovies(true)"
+        class="mt-4 bg-brand-red text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
+      >
+        Try Again
+      </button>
+    </div>
+
     <!-- Series Grid -->
     <div
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+      *ngIf="!loading || movies.length > 0"
+      class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1"
     >
+      <app-movie-card
+        *ngFor="let movie of movies"
+        [movie]="movie"
+        (mouseenter)="onHoverEnter(); showPreview($event, movie)"
+        (mouseleave)="onHoverLeave()"
+      />
+    </div>
+
+    <!-- Loading More Indicator -->
+    <div *ngIf="loading && movies.length > 0" class="text-center py-8">
       <div
-        *ngFor="let show of filteredSeries"
-        class="bg-surface rounded-lg overflow-hidden hover:scale-105 transition-transform duration-200 cursor-pointer"
-      >
-        <div class="h-48 bg-muted flex items-center justify-center">
-          <span class="text-muted-foreground text-lg"
-            >{{ show.title.charAt(0) }}</span
-          >
-        </div>
-        <div class="p-4">
-          <h3 class="text-lg font-semibold mb-2">{{ show.title }}</h3>
-          <p class="text-muted-foreground text-sm">
-            {{ show.genre }} • {{ show.seasons }} seasons • {{ show.year }}
-          </p>
-        </div>
-      </div>
+        class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-brand-red"
+      ></div>
+      <p class="text-muted-foreground mt-2 text-sm">Loading more series...</p>
+    </div>
+
+    <!-- End of Results -->
+    <div
+      *ngIf="!hasMore && movies.length > 0 && !loading"
+      class="text-center py-8"
+    >
+      <p class="text-muted-foreground text-sm">No more series to load</p>
     </div>
 
     <!-- Empty State -->
-    <div *ngIf="filteredSeries.length === 0" class="text-center py-12">
+    <div
+      *ngIf="movies.length === 0 && !loading && !error"
+      class="text-center py-12"
+    >
       <h3 class="text-xl font-semibold mb-2">No series found</h3>
       <p class="text-muted-foreground">
         Try selecting a different genre or check back later.
@@ -51,3 +88,14 @@
     </div>
   </div>
 </div>
+
+<!-- Movie Card Preview -->
+<app-movie-card-preview
+  *ngIf="previewMovie() && previewStyle()"
+  [movie]="previewMovie()!"
+  [previewStyle]="previewStyle()!"
+  [width]="previewStyle()?.width"
+  [visible]="previewVisible()"
+  (hoverEnter)="onHoverEnter()"
+  (hoverLeave)="onHoverLeave()"
+/>

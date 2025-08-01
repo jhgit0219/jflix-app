@@ -1,6 +1,7 @@
 import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { UserService, UserData } from '../../services/user.service';
 import { Subscription } from 'rxjs';
@@ -9,12 +10,13 @@ import { LucideAngularModule } from 'lucide-angular';
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, RouterModule, FormsModule, LucideAngularModule],
   templateUrl: './navbar.html',
 })
 export class Navbar implements OnInit, OnDestroy {
   user: UserData | null = null;
   scrolled = false;
+  searchQuery = '';
   private sub!: Subscription;
 
   navLinks = [
@@ -28,7 +30,8 @@ export class Navbar implements OnInit, OnDestroy {
 
   constructor(
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -46,6 +49,20 @@ export class Navbar implements OnInit, OnDestroy {
   @HostListener('window:scroll', [])
   onScroll() {
     this.scrolled = window.scrollY > 20;
+  }
+
+  onSearchKeyup(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      this.performSearch();
+    }
+  }
+
+  performSearch() {
+    if (this.searchQuery.trim()) {
+      this.router.navigate(['/search'], {
+        queryParams: { q: this.searchQuery.trim() },
+      });
+    }
   }
 
   logout() {
