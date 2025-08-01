@@ -65,12 +65,10 @@ export class MoviesComponent implements OnInit {
 
   async loadMovies(reset = false) {
     if (this.loading) {
-      console.log('Already loading movies, skipping request');
       return;
     }
 
     if (!reset && !this.hasMore) {
-      console.log('No more movies to load');
       return;
     }
 
@@ -93,8 +91,6 @@ export class MoviesComponent implements OnInit {
         endpoint = `${baseUrl}/api/movies/category/popular?page=${this.page}`;
       }
 
-      console.log(`Loading movies from: ${endpoint} (page ${this.page})`);
-
       const headers = { 'Cache-Control': 'no-cache', Pragma: 'no-cache' };
       const response = (await this.http
         .get<PaginatedResponse>(endpoint, { headers })
@@ -108,14 +104,6 @@ export class MoviesComponent implements OnInit {
       };
 
       const newMovies = response.results;
-      console.log(
-        `Received ${newMovies.length} movies for page ${response.page}`
-      );
-
-      if (newMovies.length > 0) {
-        const movieIds = newMovies.slice(0, 3).map((m) => m.id);
-        console.log(`First 3 movie IDs on page ${response.page}:`, movieIds);
-      }
 
       if (reset) {
         this.movies = newMovies;
@@ -125,33 +113,13 @@ export class MoviesComponent implements OnInit {
           (movie) => !existingIds.has(movie.id)
         );
 
-        console.log(
-          `Adding ${uniqueNewMovies.length} unique movies (${
-            newMovies.length - uniqueNewMovies.length
-          } duplicates filtered)`
-        );
-
-        if (uniqueNewMovies.length === 0 && newMovies.length > 0) {
-          const firstNewMovieId = newMovies[0].id;
-          console.log(
-            `All movies filtered out. First movie ID ${firstNewMovieId} already exists in current list.`
-          );
-          console.log(`Current movie count: ${this.movies.length}`);
-        }
-
         this.movies = [...this.movies, ...uniqueNewMovies];
       }
 
       this.hasMore = response.hasNextPage;
-      console.log(
-        `Has more movies: ${this.hasMore}, total movies: ${this.movies.length}, current page: ${response.page}, total pages: ${response.totalPages}`
-      );
 
       if (newMovies.length > 0) {
         this.page++;
-        console.log(`Incremented to page ${this.page}`);
-      } else {
-        console.log('No new movies received, keeping same page');
       }
     } catch (err) {
       console.error('Failed to load movies:', err);
@@ -182,7 +150,6 @@ export class MoviesComponent implements OnInit {
       const scrollTop = window.scrollY;
 
       if (windowHeight + scrollTop >= documentHeight - 200) {
-        console.log('Scroll triggered - loading more movies');
         this.loadMovies();
       }
     }, 100);

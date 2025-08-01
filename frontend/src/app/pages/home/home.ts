@@ -26,7 +26,6 @@ export class Home implements OnInit {
 
   ngOnInit(): void {
     const baseUrl = environment.api.backend;
-    console.log('Base URL:', baseUrl);
 
     this.http
       .get<{ id: number; name: string }[]>(`${baseUrl}/api/movies/genres`)

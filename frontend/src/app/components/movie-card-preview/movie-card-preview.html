@@ -7,10 +7,11 @@
 >
   <div class="relative">
     <img
-      [src]="movie.backdrop"
+      [src]="getBackdropImage()"
       alt="{{ movie.title }}"
       [style.width]="width"
       class="aspect-[16/9] object-cover z-5"
+      (error)="onImageError($event)"
     />
     <img
       *ngIf="movie.logo"

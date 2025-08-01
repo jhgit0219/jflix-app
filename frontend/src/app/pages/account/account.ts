@@ -32,10 +32,10 @@ export class AccountComponent implements OnInit {
   }
 
   updateProfile() {
-    console.log('Update profile clicked');
+    // TODO: Implement profile update functionality
   }
 
   changePassword() {
-    console.log('Change password clicked');
+    // TODO: Implement password change functionality
   }
 }

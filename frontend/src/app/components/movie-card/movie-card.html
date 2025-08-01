@@ -3,14 +3,16 @@
 >
   <!-- Movie backdrop -->
   <img
-    [src]="movie.backdrop || '/fallback-image.jpg'"
+    [src]="getBackdropImage()"
     [alt]="movie.title"
     class="w-full h-full object-cover"
     draggable="false"
+    (error)="onImageError($event)"
   />
 
+  <!-- Logo overlay (when photo exists and logo exists, or when no photo but logo exists) -->
   <div
-    *ngIf="movie.logo"
+    *ngIf="movie.logo && (movie.backdrop || movie.image)"
     class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"
   >
     <img
@@ -19,5 +21,30 @@
       class="max-h-[80%] max-w-[90%] object-contain drop-shadow-xl"
       draggable="false"
     />
+  </div>
+
+  <!-- Logo overlay for fallback image case -->
+  <div
+    *ngIf="movie.logo && !movie.backdrop && !movie.image && usesFallbackImage"
+    class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"
+  >
+    <img
+      [src]="movie.logo"
+      [alt]="movie.title + ' logo'"
+      class="max-h-[80%] max-w-[90%] object-contain drop-shadow-xl"
+      draggable="false"
+    />
+  </div>
+
+  <!-- Title overlay (only when no logo exists) -->
+  <div
+    *ngIf="!movie.logo"
+    class="absolute bottom-4 left-4 text-white text-sm font-bold z-10"
+    style="
+      text-shadow: 0 0 2px rgba(0, 0, 0, 1), 0 0 4px rgba(0, 0, 0, 0.9),
+        0 0 8px rgba(0, 0, 0, 0.8), 0 0 16px rgba(0, 0, 0, 0.7);
+    "
+  >
+    {{ movie.title }}
   </div>
 </div>

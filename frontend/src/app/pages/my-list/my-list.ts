@@ -82,12 +82,10 @@ export class MyListComponent implements OnInit {
     }
 
     if (this.loading) {
-      console.log('Already loading watchlist, skipping request');
       return;
     }
 
     if (!reset && !this.hasMore) {
-      console.log('No more watchlist items to load');
       return;
     }
 
@@ -104,15 +102,11 @@ export class MyListComponent implements OnInit {
       const baseUrl = environment.api.backend;
       let endpoint: string;
 
-      // For My List, we'll show popular content as a placeholder
-      // In a real app, this would be the user's actual watchlist from the backend
       if (this.selectedGenre) {
         endpoint = `${baseUrl}/api/movies/genre/${this.selectedGenre}?page=${this.page}`;
       } else {
         endpoint = `${baseUrl}/api/movies/category/top_rated?page=${this.page}`;
       }
-
-      console.log(`Loading watchlist from: ${endpoint} (page ${this.page})`);
 
       const headers = { 'Cache-Control': 'no-cache', Pragma: 'no-cache' };
       const response = (await this.http
@@ -127,17 +121,6 @@ export class MyListComponent implements OnInit {
       };
 
       const newMovies = response.results;
-      console.log(
-        `Received ${newMovies.length} watchlist items for page ${response.page}`
-      );
-
-      if (newMovies.length > 0) {
-        const movieIds = newMovies.slice(0, 3).map((m) => m.id);
-        console.log(
-          `First 3 watchlist item IDs on page ${response.page}:`,
-          movieIds
-        );
-      }
 
       if (reset) {
         this.movies = newMovies;
@@ -147,33 +130,13 @@ export class MyListComponent implements OnInit {
           (movie) => !existingIds.has(movie.id)
         );
 
-        console.log(
-          `Adding ${uniqueNewMovies.length} unique watchlist items (${
-            newMovies.length - uniqueNewMovies.length
-          } duplicates filtered)`
-        );
-
-        if (uniqueNewMovies.length === 0 && newMovies.length > 0) {
-          const firstNewMovieId = newMovies[0].id;
-          console.log(
-            `All watchlist items filtered out. First item ID ${firstNewMovieId} already exists in current list.`
-          );
-          console.log(`Current watchlist count: ${this.movies.length}`);
-        }
-
         this.movies = [...this.movies, ...uniqueNewMovies];
       }
 
       this.hasMore = response.hasNextPage;
-      console.log(
-        `Has more watchlist items: ${this.hasMore}, total items: ${this.movies.length}, current page: ${response.page}, total pages: ${response.totalPages}`
-      );
 
       if (newMovies.length > 0) {
         this.page++;
-        console.log(`Incremented to page ${this.page}`);
-      } else {
-        console.log('No new watchlist items received, keeping same page');
       }
     } catch (err) {
       console.error('Failed to load watchlist:', err);
@@ -204,7 +167,6 @@ export class MyListComponent implements OnInit {
       const scrollTop = window.scrollY;
 
       if (windowHeight + scrollTop >= documentHeight - 200) {
-        console.log('Scroll triggered - loading more watchlist items');
         this.loadMovies();
       }
     }, 100);

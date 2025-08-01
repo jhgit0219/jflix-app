@@ -65,12 +65,10 @@ export class KidsComponent implements OnInit {
 
   async loadMovies(reset = false) {
     if (this.loading) {
-      console.log('Already loading kids content, skipping request');
       return;
     }
 
     if (!reset && !this.hasMore) {
-      console.log('No more kids content to load');
       return;
     }
 
@@ -95,8 +93,6 @@ export class KidsComponent implements OnInit {
         endpoint = `${baseUrl}/api/movies/genre/16?page=${this.page}&certification=G,PG`;
       }
 
-      console.log(`Loading kids content from: ${endpoint} (page ${this.page})`);
-
       const headers = { 'Cache-Control': 'no-cache', Pragma: 'no-cache' };
       const response = (await this.http
         .get<PaginatedResponse>(endpoint, { headers })
@@ -110,17 +106,6 @@ export class KidsComponent implements OnInit {
       };
 
       const newMovies = response.results;
-      console.log(
-        `Received ${newMovies.length} kids content for page ${response.page}`
-      );
-
-      if (newMovies.length > 0) {
-        const movieIds = newMovies.slice(0, 3).map((m) => m.id);
-        console.log(
-          `First 3 kids content IDs on page ${response.page}:`,
-          movieIds
-        );
-      }
 
       if (reset) {
         this.movies = newMovies;
@@ -130,33 +115,13 @@ export class KidsComponent implements OnInit {
           (movie) => !existingIds.has(movie.id)
         );
 
-        console.log(
-          `Adding ${uniqueNewMovies.length} unique kids content (${
-            newMovies.length - uniqueNewMovies.length
-          } duplicates filtered)`
-        );
-
-        if (uniqueNewMovies.length === 0 && newMovies.length > 0) {
-          const firstNewMovieId = newMovies[0].id;
-          console.log(
-            `All kids content filtered out. First content ID ${firstNewMovieId} already exists in current list.`
-          );
-          console.log(`Current kids content count: ${this.movies.length}`);
-        }
-
         this.movies = [...this.movies, ...uniqueNewMovies];
       }
 
       this.hasMore = response.hasNextPage;
-      console.log(
-        `Has more kids content: ${this.hasMore}, total content: ${this.movies.length}, current page: ${response.page}, total pages: ${response.totalPages}`
-      );
 
       if (newMovies.length > 0) {
         this.page++;
-        console.log(`Incremented to page ${this.page}`);
-      } else {
-        console.log('No new kids content received, keeping same page');
       }
     } catch (err) {
       console.error('Failed to load kids content:', err);
@@ -187,7 +152,6 @@ export class KidsComponent implements OnInit {
       const scrollTop = window.scrollY;
 
       if (windowHeight + scrollTop >= documentHeight - 200) {
-        console.log('Scroll triggered - loading more kids content');
         this.loadMovies();
       }
     }, 100);

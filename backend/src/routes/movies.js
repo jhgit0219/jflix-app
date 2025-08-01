@@ -29,7 +29,7 @@ router.get("/category/:type", async (req, res) => {
   try {
     const page = validatePage(req.query.page);
     const result = await getMoviesByCategory(req.params.type, page);
-    console.log(result);
+
     res.json(result);
   } catch (err) {
     console.error(`Error fetching category ${req.params.type}:`, err);
